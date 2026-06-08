@@ -69,21 +69,43 @@ const sampleFlights = {
   ]
 };
 
+function getEl(id) {
+  return document.getElementById(id);
+}
+
 function showFlights(day) {
+  const todayBtn = getEl("todayBtn");
+  const tomorrowBtn = getEl("tomorrowBtn");
+  const message = getEl("message");
+  const recommendation = getEl("recommendation");
+  const flightList = getEl("flightList");
+
+  if (!todayBtn || !tomorrowBtn || !message || !recommendation || !flightList) {
+    console.error("HTML elemanları bulunamadı. todayBtn, tomorrowBtn, message, recommendation veya flightList eksik.");
+    return;
+  }
+
   let flights = liveFlights[day].length > 0 ? liveFlights[day] : sampleFlights[day];
 
-  document.getElementById("todayBtn").classList.remove("active");
-  document.getElementById("tomorrowBtn").classList.remove("active");
+  if (!flights || flights.length === 0) {
+    message.innerHTML = "Gösterilecek uçuş bulunamadı.";
+    recommendation.innerHTML = "";
+    flightList.innerHTML = "";
+    return;
+  }
+
+  todayBtn.classList.remove("active");
+  tomorrowBtn.classList.remove("active");
 
   if (day === "today") {
-    document.getElementById("todayBtn").classList.add("active");
-    document.getElementById("message").innerHTML =
+    todayBtn.classList.add("active");
+    message.innerHTML =
       liveFlights.today.length > 0
         ? "Bugün: Canlı API verisi gösteriliyor."
         : "Bugün: Şimdilik örnek uçuşlar gösteriliyor.";
   } else {
-    document.getElementById("tomorrowBtn").classList.add("active");
-    document.getElementById("message").innerHTML =
+    tomorrowBtn.classList.add("active");
+    message.innerHTML =
       liveFlights.tomorrow.length > 0
         ? "Yarın: Canlı API verisi gösteriliyor."
         : "Yarın: Şimdilik örnek uçuşlar gösteriliyor.";
@@ -93,7 +115,7 @@ function showFlights(day) {
 
   const recommended = flights[0];
 
-  document.getElementById("recommendation").innerHTML = `
+  recommendation.innerHTML = `
     <h2>🏅 Tavsiye Edilen Uçuş</h2>
     <div class="big-time">${recommended.dep} → ${recommended.arr}</div>
     <div class="small">${recommended.airline} · ${recommended.hub}</div>
@@ -130,7 +152,7 @@ function showFlights(day) {
     `;
   });
 
-  document.getElementById("flightList").innerHTML = `
+  flightList.innerHTML = `
     <h2>${day === "today" ? "Bugünkü Kalan Uçuşlar" : "Yarınki Uçuşlar"}</h2>
     <table>
       <thead>
@@ -173,20 +195,26 @@ function getAirlineName(code) {
 
 function toMinutes(timeText) {
   if (!timeText) return null;
-  const date = new Date(timeText.replace(" ", "T"));
+
+  const cleanTime = timeText.replace(" ", "T");
+  const date = new Date(cleanTime);
+
   if (isNaN(date.getTime())) return null;
+
   return date.getTime() / 60000;
 }
 
 function formatTime(timeText) {
-  if (!timeText) return "-";
+  if (!timeText || timeText.length < 16) return "-";
   return timeText.substring(11, 16);
 }
 
 function minutesToDuration(minutes) {
   if (minutes === null || minutes < 0) return "-";
+
   const h = Math.floor(minutes / 60);
   const m = Math.round(minutes % 60);
+
   return `${h}:${String(m).padStart(2, "0")}`;
 }
 
@@ -216,8 +244,11 @@ async function fetchSchedules(dep) {
 
 async function loadLiveFlights() {
   try {
-    document.getElementById("message").innerHTML =
-      "Canlı uçuş verileri yükleniyor...";
+    const message = getEl("message");
+
+    if (message) {
+      message.innerHTML = "Canlı uçuş verileri yükleniyor...";
+    }
 
     const mucFlights = await fetchSchedules("MUC");
     const istFlights = await fetchSchedules("IST");
@@ -272,11 +303,11 @@ async function loadLiveFlights() {
     if (combined.length > 0) {
       liveFlights.today = combined;
       liveFlights.tomorrow = combined;
-      showFlights("today");
     } else {
       console.warn("Canlı bağlantılı MUC → OGU uçuşu bulunamadı. Örnek veri gösteriliyor.");
-      showFlights("today");
     }
+
+    showFlights("today");
 
   } catch (error) {
     console.error("Canlı veri hatası:", error);
@@ -284,5 +315,8 @@ async function loadLiveFlights() {
   }
 }
 
-loadLiveFlights();
+window.onload = () => {
+  showFlights("today");
+  loadLiveFlights();
+};
 </script>
