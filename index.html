@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YAMA Uçuş Asistanı</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    padding:20px;
+    background:#f5f7fa;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.primary{
+    background:#0066cc;
+    color:white;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+
+.recommend{
+    border-left:6px solid green;
+}
+
+.buy{
+    background:green;
+    color:white;
+    padding:10px 16px;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>✈️ YAMA Uçuş Asistanı</h1>
+
+<div class="buttons">
+<button class="primary">BUGÜN</button>
+<button class="primary">YARIN</button>
+</div>
+
+<div class="card recommend">
+
+<h2>🥇 Tavsiye Edilen Uçuş</h2>
+
+<p><strong>THY</strong></p>
+
+<p>
+07:15 MUC → 13:55 OGU
+</p>
+
+<p>
+Toplam Süre: 5s 40dk
+</p>
+
+<p>
+Fiyat: €227
+</p>
+
+<a class="buy"
+href="https://www.turkishairlines.com">
+Bileti Satın Al </a>
+
+</div>
+
+<div class="card">
+
+<h2>Bugünkü Uçuşlar</h2>
+
+<table>
+
+<tr>
+<th>Firma</th>
+<th>Kalkış</th>
+<th>Varış</th>
+<th>Süre</th>
+<th>Fiyat</th>
+</tr>
+
+<tr>
+<td>THY</td>
+<td>07:15</td>
+<td>13:55</td>
+<td>5s40d</td>
+<td>227€</td>
+</tr>
+
+<tr>
+<td>AJet</td>
+<td>12:55</td>
+<td>20:25</td>
+<td>6s30d</td>
+<td>116€</td>
+</tr>
+
+<tr>
+<td>THY</td>
+<td>12:55</td>
+<td>20:00</td>
+<td>6s05d</td>
+<td>227€</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+</body>
+</html>
