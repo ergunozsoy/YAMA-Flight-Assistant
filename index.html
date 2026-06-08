@@ -87,45 +87,21 @@ th{
   text-decoration:none;
   display:inline-block;
 }
-.warning{
-  color:#b45309;
-  font-weight:bold;
-}
 .small{
   font-size:13px;
   color:#6b7280;
 }
 @media(max-width:700px){
-  table, thead, tbody, th, td, tr{
-    display:block;
+  th,td{
+    font-size:13px;
+    padding:9px 6px;
   }
-  th{
-    display:none;
+  .bigtime{
+    font-size:25px;
   }
-  tr{
-    margin-bottom:14px;
-    background:white;
-    border-radius:12px;
-    padding:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  .container{
+    max-width:100%;
   }
-  td{
-    border:none;
-    text-align:left;
-    padding:7px;
-  }
-  td::before{
-    font-weight:bold;
-    display:inline-block;
-    width:90px;
-  }
-  td:nth-child(1)::before{content:"Kalkış:";}
-  td:nth-child(2)::before{content:"Varış:";}
-  td:nth-child(3)::before{content:"Firma:";}
-  td:nth-child(4)::before{content:"Aktarma:";}
-  td:nth-child(5)::before{content:"Süre:";}
-  td:nth-child(6)::before{content:"Fiyat:";}
-  td:nth-child(7)::before{content:"İşlem:";}
 }
 </style>
 </head>
@@ -157,18 +133,109 @@ const airlineLinks = {
 
 const flights = {
   today: [
-    {dep:"07:15", arr:"13:55", airline:"THY", transfer:"IST", duration:"5s 40d", price:"227€", score:95},
-    {dep:"10:45", arr:"20:00", airline:"THY", transfer:"IST", duration:"8s 15d", price:"227€", score:78},
-    {dep:"12:55", arr:"20:25", airline:"AJet", transfer:"SAW", duration:"6s 30d", price:"116,91€", score:92},
-    {dep:"12:55", arr:"20:00", airline:"THY", transfer:"IST", duration:"6s 05d", price:"227€", score:88},
-    {dep:"19:40", arr:"10:05 +1", airline:"THY", transfer:"IST", duration:"13s 25d", price:"200€", score:60}
+    {
+      dep:"07:15",
+      hub:"10:05 / 12:15 IST",
+      arr:"13:55",
+      layover:"2:10",
+      airline:"THY",
+      duration:"5:40",
+      price:"227€",
+      score:95
+    },
+    {
+      dep:"10:45",
+      hub:"14:25 / 18:20 IST",
+      arr:"20:00",
+      layover:"3:55",
+      airline:"THY",
+      duration:"8:15",
+      price:"227€",
+      score:78
+    },
+    {
+      dep:"12:55",
+      hub:"16:10 / 18:20 SAW",
+      arr:"20:25",
+      layover:"2:10",
+      airline:"AJet",
+      duration:"6:30",
+      price:"116,91€",
+      score:92
+    },
+    {
+      dep:"12:55",
+      hub:"16:35 / 18:20 IST",
+      arr:"20:00",
+      layover:"1:45",
+      airline:"THY",
+      duration:"6:05",
+      price:"227€",
+      score:88
+    },
+    {
+      dep:"19:40",
+      hub:"23:15 / 08:20 IST",
+      arr:"10:05 +1",
+      layover:"9:05",
+      airline:"THY",
+      duration:"13:25",
+      price:"200€",
+      score:60
+    }
   ],
+
   tomorrow: [
-    {dep:"07:15", arr:"13:55", airline:"THY", transfer:"IST", duration:"5s 40d", price:"227€", score:95},
-    {dep:"10:45", arr:"20:00", airline:"THY", transfer:"IST", duration:"8s 15d", price:"227€", score:78},
-    {dep:"12:55", arr:"20:25", airline:"AJet", transfer:"SAW", duration:"6s 30d", price:"116,91€", score:92},
-    {dep:"12:55", arr:"20:00", airline:"THY", transfer:"IST", duration:"6s 05d", price:"227€", score:88},
-    {dep:"19:40", arr:"10:05 +1", airline:"THY", transfer:"IST", duration:"13s 25d", price:"200€", score:60}
+    {
+      dep:"07:15",
+      hub:"10:05 / 12:15 IST",
+      arr:"13:55",
+      layover:"2:10",
+      airline:"THY",
+      duration:"5:40",
+      price:"227€",
+      score:95
+    },
+    {
+      dep:"10:45",
+      hub:"14:25 / 18:20 IST",
+      arr:"20:00",
+      layover:"3:55",
+      airline:"THY",
+      duration:"8:15",
+      price:"227€",
+      score:78
+    },
+    {
+      dep:"12:55",
+      hub:"16:10 / 18:20 SAW",
+      arr:"20:25",
+      layover:"2:10",
+      airline:"AJet",
+      duration:"6:30",
+      price:"116,91€",
+      score:92
+    },
+    {
+      dep:"12:55",
+      hub:"16:35 / 18:20 IST",
+      arr:"20:00",
+      layover:"1:45",
+      airline:"THY",
+      duration:"6:05",
+      price:"227€",
+      score:88
+    },
+    {
+      dep:"19:40",
+      hub:"23:15 / 08:20 IST",
+      arr:"10:05 +1",
+      layover:"9:05",
+      airline:"THY",
+      duration:"13:25",
+      price:"200€",
+      score:60
+    }
   ]
 };
 
@@ -215,8 +282,8 @@ function showFlights(day){
     <div class="card recommend">
       <h2>🥇 Tavsiye Edilen Uçuş</h2>
       <div class="bigtime">${best.dep} → ${best.arr}</div>
-      <div class="meta">${best.airline} · ${best.transfer} aktarmalı</div>
-      <p><strong>Süre:</strong> ${best.duration} · <strong>Fiyat:</strong> ${best.price}</p>
+      <div class="meta">${best.airline} · ${best.hub}</div>
+      <p><strong>Bekleme:</strong> ${best.layover} · <strong>Süre:</strong> ${best.duration} · <strong>Fiyat:</strong> ${best.price}</p>
       <a class="buy" href="${airlineLinks[best.airline]}" target="_blank">Bileti Satın Al</a>
     </div>
   `;
@@ -224,12 +291,13 @@ function showFlights(day){
   let rows = list.map(f => `
     <tr>
       <td>${f.dep}</td>
+      <td>${f.hub}</td>
       <td>${f.arr}</td>
-      <td>${f.airline}</td>
-      <td>${f.transfer}</td>
+      <td>${f.layover}</td>
       <td>${f.duration}</td>
       <td>${f.price}</td>
-      <td><a class="buy" href="${airlineLinks[f.airline]}" target="_blank">Satın Al</a></td>
+      <td>${f.airline}</td>
+      <td><a class="buy" href="${airlineLinks[f.airline]}" target="_blank">Al</a></td>
     </tr>
   `).join("");
 
@@ -239,18 +307,19 @@ function showFlights(day){
       <table>
         <thead>
           <tr>
-            <th>Kalkış</th>
-            <th>Varış</th>
-            <th>Firma</th>
-            <th>Aktarma</th>
+            <th>MUC</th>
+            <th>Hub</th>
+            <th>OGU</th>
+            <th>Bekleme</th>
             <th>Süre</th>
-            <th>Fiyat</th>
+            <th>€</th>
+            <th>Firma</th>
             <th>İşlem</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
-      <p class="small">Not: Bu sürümde saat ve fiyatlar örnek/veri girişi amaçlıdır. Gerçek sürümde canlı veri bağlanacaktır.</p>
+      <p class="small">Not: Saat ve fiyatlar şimdilik örnek/veri girişi amaçlıdır. Gerçek sürümde canlı veri bağlanacaktır.</p>
     </div>
   `;
 }
