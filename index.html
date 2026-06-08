@@ -1,143 +1,3 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <title>YAMA Uçuş Asistanı</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      color: #0b1f33;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 34px;
-    }
-
-    .header p {
-      margin-top: 8px;
-      color: #5f6f7f;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 25px;
-    }
-
-    .tabs button {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      background: #e6e9ee;
-      color: #0b1f33;
-    }
-
-    .tabs button.active {
-      background: #0057b8;
-      color: white;
-    }
-
-    .info-box, .card, .table-card {
-      background: white;
-      border-radius: 16px;
-      padding: 22px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-      margin-bottom: 22px;
-    }
-
-    .recommendation {
-      border-left: 7px solid #15a34a;
-    }
-
-    .recommendation h2 {
-      margin-top: 0;
-    }
-
-    .big-time {
-      font-size: 30px;
-      font-weight: bold;
-      margin: 12px 0;
-    }
-
-    .buy-btn {
-      background: #16a34a;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 16px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 15px;
-    }
-
-    th {
-      background: #eef2f6;
-      text-align: left;
-      padding: 12px;
-    }
-
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .note {
-      font-size: 13px;
-      color: #5f6f7f;
-      margin-top: 15px;
-    }
-
-    .small {
-      color: #5f6f7f;
-      font-size: 14px;
-    }
-  </style>
-</head>
-
-<body>
-<div class="container">
-
-  <div class="header">
-    <h1>✈️ YAMA Uçuş Asistanı</h1>
-    <p>Münih (MUC) → Ordu-Giresun (OGU)</p>
-  </div>
-
-  <div class="tabs">
-    <button id="todayBtn" class="active" onclick="showFlights('today')">BUGÜN</button>
-    <button id="tomorrowBtn" onclick="showFlights('tomorrow')">YARIN</button>
-  </div>
-
-  <div id="message" class="info-box"></div>
-
-  <div id="recommendation" class="card recommendation"></div>
-
-  <div id="flightList" class="table-card"></div>
-
-</div>
-
 <script>
 const API_KEY = "a1a8c488-b22d-452f-81f7-dc5aa247a14f";
 
@@ -145,6 +5,11 @@ const airlineLinks = {
   "THY": "https://www.turkishairlines.com/tr-int/ucak-bileti/rezervasyon/availability-international/",
   "AJet": "https://ajet.com/tr",
   "Pegasus": "https://www.flypgs.com/"
+};
+
+let liveFlights = {
+  today: [],
+  tomorrow: []
 };
 
 const sampleFlights = {
@@ -156,10 +21,10 @@ const sampleFlights = {
       wait: "7:20",
       duration: "10:40",
       price: "227€",
-      airline: "THY"
+      airline: "THY",
+      yama: 78
     }
   ],
-
   tomorrow: [
     {
       dep: "07:15",
@@ -168,7 +33,8 @@ const sampleFlights = {
       wait: "2:10",
       duration: "5:40",
       price: "227€",
-      airline: "THY"
+      airline: "THY",
+      yama: 95
     },
     {
       dep: "10:45",
@@ -177,7 +43,8 @@ const sampleFlights = {
       wait: "3:55",
       duration: "8:15",
       price: "227€",
-      airline: "THY"
+      airline: "THY",
+      yama: 84
     },
     {
       dep: "12:55",
@@ -186,16 +53,8 @@ const sampleFlights = {
       wait: "2:10",
       duration: "6:30",
       price: "116,91€",
-      airline: "AJet"
-    },
-    {
-      dep: "12:55",
-      hub: "16:35 / 18:20 IST",
-      arr: "20:00",
-      wait: "1:45",
-      duration: "6:05",
-      price: "227€",
-      airline: "THY"
+      airline: "AJet",
+      yama: 86
     },
     {
       dep: "19:40",
@@ -204,13 +63,14 @@ const sampleFlights = {
       wait: "9:05",
       duration: "13:25",
       price: "200€",
-      airline: "THY"
+      airline: "THY",
+      yama: 61
     }
   ]
 };
 
 function showFlights(day) {
-  const flights = sampleFlights[day];
+  let flights = liveFlights[day].length > 0 ? liveFlights[day] : sampleFlights[day];
 
   document.getElementById("todayBtn").classList.remove("active");
   document.getElementById("tomorrowBtn").classList.remove("active");
@@ -218,12 +78,18 @@ function showFlights(day) {
   if (day === "today") {
     document.getElementById("todayBtn").classList.add("active");
     document.getElementById("message").innerHTML =
-      "Bugün: Şimdilik örnek uçuşlar gösteriliyor.";
+      liveFlights.today.length > 0
+        ? "Bugün: Canlı API verisi gösteriliyor."
+        : "Bugün: Şimdilik örnek uçuşlar gösteriliyor.";
   } else {
     document.getElementById("tomorrowBtn").classList.add("active");
     document.getElementById("message").innerHTML =
-      "Yarın: Yarınki tüm örnek uçuşlar gösteriliyor.";
+      liveFlights.tomorrow.length > 0
+        ? "Yarın: Canlı API verisi gösteriliyor."
+        : "Yarın: Şimdilik örnek uçuşlar gösteriliyor.";
   }
+
+  flights.sort((a, b) => b.yama - a.yama);
 
   const recommended = flights[0];
 
@@ -234,6 +100,7 @@ function showFlights(day) {
     <p>
       <strong>Bekleme:</strong> ${recommended.wait} ·
       <strong>Süre:</strong> ${recommended.duration} ·
+      <strong>YAMA:</strong> ${recommended.yama}/100 ·
       <strong>Fiyat:</strong> ${recommended.price}
     </p>
     <button class="buy-btn" onclick="openAirline('${recommended.airline}')">
@@ -253,6 +120,7 @@ function showFlights(day) {
         <td>${flight.duration}</td>
         <td>${flight.price}</td>
         <td>${flight.airline}</td>
+        <td>${flight.yama}</td>
         <td>
           <button class="buy-btn" onclick="openAirline('${flight.airline}')">
             Al
@@ -274,15 +142,14 @@ function showFlights(day) {
           <th>Süre</th>
           <th>€</th>
           <th>Firma</th>
+          <th>YAMA</th>
           <th>İşlem</th>
         </tr>
       </thead>
-      <tbody>
-        ${tableRows}
-      </tbody>
+      <tbody>${tableRows}</tbody>
     </table>
     <div class="note">
-      Not: Saat ve fiyatlar şimdilik örnek/veri girişi amaçlıdır. Gerçek sürümde canlı veri bağlanacaktır.
+      Not: Canlı veri bulunamazsa sistem otomatik olarak örnek uçuşları gösterir.
     </div>
   `;
 }
@@ -297,25 +164,125 @@ function openAirline(airline) {
   }
 }
 
-async function testAirLabs() {
+function getAirlineName(code) {
+  if (code === "TK" || code === "THY") return "THY";
+  if (code === "VF" || code === "AJ") return "AJet";
+  if (code === "PC" || code === "PGT") return "Pegasus";
+  return code || "Bilinmiyor";
+}
+
+function toMinutes(timeText) {
+  if (!timeText) return null;
+  const date = new Date(timeText.replace(" ", "T"));
+  if (isNaN(date.getTime())) return null;
+  return date.getTime() / 60000;
+}
+
+function formatTime(timeText) {
+  if (!timeText) return "-";
+  return timeText.substring(11, 16);
+}
+
+function minutesToDuration(minutes) {
+  if (minutes === null || minutes < 0) return "-";
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  return `${h}:${String(m).padStart(2, "0")}`;
+}
+
+function calculateYama(waitMinutes, totalMinutes) {
+  let score = 100;
+
+  if (waitMinutes < 60) score -= 20;
+  if (waitMinutes > 240) score -= 15;
+  if (waitMinutes > 480) score -= 25;
+  if (totalMinutes > 600) score -= 15;
+  if (totalMinutes > 800) score -= 25;
+
+  return Math.max(40, Math.min(100, score));
+}
+
+async function fetchSchedules(dep) {
+  const response = await fetch(
+    `https://airlabs.co/api/v9/schedules?dep_iata=${dep}&api_key=${API_KEY}`
+  );
+
+  const data = await response.json();
+
+  console.log(`AIRLABS ${dep}:`, data);
+
+  return data.response || [];
+}
+
+async function loadLiveFlights() {
   try {
-    const response = await fetch(
-      `https://airlabs.co/api/v9/schedules?dep_iata=MUC&api_key=${API_KEY}`
+    document.getElementById("message").innerHTML =
+      "Canlı uçuş verileri yükleniyor...";
+
+    const mucFlights = await fetchSchedules("MUC");
+    const istFlights = await fetchSchedules("IST");
+    const sawFlights = await fetchSchedules("SAW");
+
+    const firstLegs = mucFlights.filter(f =>
+      ["IST", "SAW"].includes(f.arr_iata)
     );
 
-    const data = await response.json();
+    const secondLegs = [...istFlights, ...sawFlights].filter(f =>
+      f.arr_iata === "OGU"
+    );
 
-    console.log("AIRLABS TEST:");
-    console.log(data);
+    const combined = [];
+
+    firstLegs.forEach(first => {
+      secondLegs.forEach(second => {
+        if (first.arr_iata !== second.dep_iata) return;
+
+        const firstArrival = toMinutes(first.arr_time);
+        const secondDeparture = toMinutes(second.dep_time);
+        const firstDeparture = toMinutes(first.dep_time);
+        const secondArrival = toMinutes(second.arr_time);
+
+        if (
+          firstArrival === null ||
+          secondDeparture === null ||
+          firstDeparture === null ||
+          secondArrival === null
+        ) return;
+
+        const wait = secondDeparture - firstArrival;
+        const total = secondArrival - firstDeparture;
+
+        if (wait < 45 || wait > 900) return;
+
+        const airline = getAirlineName(first.airline_iata || first.airline_icao);
+
+        combined.push({
+          dep: formatTime(first.dep_time),
+          hub: `${formatTime(first.arr_time)} / ${formatTime(second.dep_time)} ${first.arr_iata}`,
+          arr: formatTime(second.arr_time),
+          wait: minutesToDuration(wait),
+          duration: minutesToDuration(total),
+          price: "-",
+          airline: airline,
+          yama: calculateYama(wait, total)
+        });
+      });
+    });
+
+    if (combined.length > 0) {
+      liveFlights.today = combined;
+      liveFlights.tomorrow = combined;
+      showFlights("today");
+    } else {
+      console.warn("Canlı bağlantılı MUC → OGU uçuşu bulunamadı. Örnek veri gösteriliyor.");
+      showFlights("today");
+    }
 
   } catch (error) {
-    console.error("API HATASI:", error);
+    console.error("Canlı veri hatası:", error);
+    showFlights("today");
   }
 }
 
-testAirLabs();
-showFlights("today");
+loadLiveFlights();
 </script>
-
-</body>
-</html>
