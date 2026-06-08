@@ -1,322 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>YAMA Uçuş Asistanı</title>
+</head>
+<body>
+
+  <h1>✈️ YAMA Uçuş Asistanı</h1>
+  <p>Münih (MUC) → Ordu-Giresun (OGU)</p>
+
+  <button id="todayBtn" onclick="showFlights('today')">BUGÜN</button>
+  <button id="tomorrowBtn" onclick="showFlights('tomorrow')">YARIN</button>
+
+  <div id="message"></div>
+  <div id="recommendation"></div>
+  <div id="flightList"></div>
+
 <script>
-const API_KEY = "a1a8c488-b22d-452f-81f7-dc5aa247a14f";
-
-const airlineLinks = {
-  "THY": "https://www.turkishairlines.com/tr-int/ucak-bileti/rezervasyon/availability-international/",
-  "AJet": "https://ajet.com/tr",
-  "Pegasus": "https://www.flypgs.com/"
-};
-
-let liveFlights = {
-  today: [],
-  tomorrow: []
-};
-
 const sampleFlights = {
-  today: [
-    {
-      dep: "22:05",
-      hub: "23:45 / 07:05 IST",
-      arr: "08:45 +1",
-      wait: "7:20",
-      duration: "10:40",
-      price: "227€",
-      airline: "THY",
-      yama: 78
-    }
-  ],
-  tomorrow: [
-    {
-      dep: "07:15",
-      hub: "10:05 / 12:15 IST",
-      arr: "13:55",
-      wait: "2:10",
-      duration: "5:40",
-      price: "227€",
-      airline: "THY",
-      yama: 95
-    },
-    {
-      dep: "10:45",
-      hub: "14:25 / 18:20 IST",
-      arr: "20:00",
-      wait: "3:55",
-      duration: "8:15",
-      price: "227€",
-      airline: "THY",
-      yama: 84
-    },
-    {
-      dep: "12:55",
-      hub: "16:10 / 18:20 SAW",
-      arr: "20:25",
-      wait: "2:10",
-      duration: "6:30",
-      price: "116,91€",
-      airline: "AJet",
-      yama: 86
-    },
-    {
-      dep: "19:40",
-      hub: "23:15 / 08:20 IST",
-      arr: "10:05 +1",
-      wait: "9:05",
-      duration: "13:25",
-      price: "200€",
-      airline: "THY",
-      yama: 61
-    }
-  ]
+  today: [{ dep: "22:05", hub: "IST", arr: "08:45 +1", wait: "7:20", duration: "10:40", price: "227€", airline: "THY", yama: 78 }],
+  tomorrow: [{ dep: "07:15", hub: "IST", arr: "13:55", wait: "2:10", duration: "5:40", price: "227€", airline: "THY", yama: 95 }]
 };
-
-function getEl(id) {
-  return document.getElementById(id);
-}
 
 function showFlights(day) {
-  const todayBtn = getEl("todayBtn");
-  const tomorrowBtn = getEl("tomorrowBtn");
-  const message = getEl("message");
-  const recommendation = getEl("recommendation");
-  const flightList = getEl("flightList");
+  const flights = sampleFlights[day];
 
-  if (!todayBtn || !tomorrowBtn || !message || !recommendation || !flightList) {
-    console.error("HTML elemanları bulunamadı. todayBtn, tomorrowBtn, message, recommendation veya flightList eksik.");
-    return;
-  }
+  document.getElementById("message").innerHTML =
+    day === "today" ? "Bugünkü örnek uçuşlar" : "Yarınki örnek uçuşlar";
 
-  let flights = liveFlights[day].length > 0 ? liveFlights[day] : sampleFlights[day];
+  const f = flights[0];
 
-  if (!flights || flights.length === 0) {
-    message.innerHTML = "Gösterilecek uçuş bulunamadı.";
-    recommendation.innerHTML = "";
-    flightList.innerHTML = "";
-    return;
-  }
-
-  todayBtn.classList.remove("active");
-  tomorrowBtn.classList.remove("active");
-
-  if (day === "today") {
-    todayBtn.classList.add("active");
-    message.innerHTML =
-      liveFlights.today.length > 0
-        ? "Bugün: Canlı API verisi gösteriliyor."
-        : "Bugün: Şimdilik örnek uçuşlar gösteriliyor.";
-  } else {
-    tomorrowBtn.classList.add("active");
-    message.innerHTML =
-      liveFlights.tomorrow.length > 0
-        ? "Yarın: Canlı API verisi gösteriliyor."
-        : "Yarın: Şimdilik örnek uçuşlar gösteriliyor.";
-  }
-
-  flights.sort((a, b) => b.yama - a.yama);
-
-  const recommended = flights[0];
-
-  recommendation.innerHTML = `
-    <h2>🏅 Tavsiye Edilen Uçuş</h2>
-    <div class="big-time">${recommended.dep} → ${recommended.arr}</div>
-    <div class="small">${recommended.airline} · ${recommended.hub}</div>
-    <p>
-      <strong>Bekleme:</strong> ${recommended.wait} ·
-      <strong>Süre:</strong> ${recommended.duration} ·
-      <strong>YAMA:</strong> ${recommended.yama}/100 ·
-      <strong>Fiyat:</strong> ${recommended.price}
-    </p>
-    <button class="buy-btn" onclick="openAirline('${recommended.airline}')">
-      Bileti Satın Al
-    </button>
+  document.getElementById("recommendation").innerHTML = `
+    <h2>Tavsiye Edilen Uçuş</h2>
+    <p>${f.dep} → ${f.arr}</p>
+    <p>${f.airline} / ${f.hub} / YAMA: ${f.yama}</p>
   `;
 
-  let tableRows = "";
-
-  flights.forEach(flight => {
-    tableRows += `
+  document.getElementById("flightList").innerHTML = `
+    <h2>Uçuş Listesi</h2>
+    <table border="1" cellpadding="8">
       <tr>
-        <td>${flight.dep}</td>
-        <td>${flight.hub}</td>
-        <td>${flight.arr}</td>
-        <td>${flight.wait}</td>
-        <td>${flight.duration}</td>
-        <td>${flight.price}</td>
-        <td>${flight.airline}</td>
-        <td>${flight.yama}</td>
-        <td>
-          <button class="buy-btn" onclick="openAirline('${flight.airline}')">
-            Al
-          </button>
-        </td>
+        <th>Kalkış</th>
+        <th>Hub</th>
+        <th>Varış</th>
+        <th>Bekleme</th>
+        <th>Süre</th>
+        <th>Fiyat</th>
+        <th>Firma</th>
+        <th>YAMA</th>
       </tr>
-    `;
-  });
-
-  flightList.innerHTML = `
-    <h2>${day === "today" ? "Bugünkü Kalan Uçuşlar" : "Yarınki Uçuşlar"}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>MUC</th>
-          <th>Hub</th>
-          <th>OGU</th>
-          <th>Bekleme</th>
-          <th>Süre</th>
-          <th>€</th>
-          <th>Firma</th>
-          <th>YAMA</th>
-          <th>İşlem</th>
-        </tr>
-      </thead>
-      <tbody>${tableRows}</tbody>
+      <tr>
+        <td>${f.dep}</td>
+        <td>${f.hub}</td>
+        <td>${f.arr}</td>
+        <td>${f.wait}</td>
+        <td>${f.duration}</td>
+        <td>${f.price}</td>
+        <td>${f.airline}</td>
+        <td>${f.yama}</td>
+      </tr>
     </table>
-    <div class="note">
-      Not: Canlı veri bulunamazsa sistem otomatik olarak örnek uçuşları gösterir.
-    </div>
   `;
 }
 
-function openAirline(airline) {
-  const url = airlineLinks[airline];
-
-  if (url) {
-    window.open(url, "_blank");
-  } else {
-    alert("Bu havayolu için bağlantı bulunamadı.");
-  }
-}
-
-function getAirlineName(code) {
-  if (code === "TK" || code === "THY") return "THY";
-  if (code === "VF" || code === "AJ") return "AJet";
-  if (code === "PC" || code === "PGT") return "Pegasus";
-  return code || "Bilinmiyor";
-}
-
-function toMinutes(timeText) {
-  if (!timeText) return null;
-
-  const cleanTime = timeText.replace(" ", "T");
-  const date = new Date(cleanTime);
-
-  if (isNaN(date.getTime())) return null;
-
-  return date.getTime() / 60000;
-}
-
-function formatTime(timeText) {
-  if (!timeText || timeText.length < 16) return "-";
-  return timeText.substring(11, 16);
-}
-
-function minutesToDuration(minutes) {
-  if (minutes === null || minutes < 0) return "-";
-
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-
-  return `${h}:${String(m).padStart(2, "0")}`;
-}
-
-function calculateYama(waitMinutes, totalMinutes) {
-  let score = 100;
-
-  if (waitMinutes < 60) score -= 20;
-  if (waitMinutes > 240) score -= 15;
-  if (waitMinutes > 480) score -= 25;
-  if (totalMinutes > 600) score -= 15;
-  if (totalMinutes > 800) score -= 25;
-
-  return Math.max(40, Math.min(100, score));
-}
-
-async function fetchSchedules(dep) {
-  const response = await fetch(
-    `https://airlabs.co/api/v9/schedules?dep_iata=${dep}&api_key=${API_KEY}`
-  );
-
-  const data = await response.json();
-
-  console.log(`AIRLABS ${dep}:`, data);
-
-  return data.response || [];
-}
-
-async function loadLiveFlights() {
-  try {
-    const message = getEl("message");
-
-    if (message) {
-      message.innerHTML = "Canlı uçuş verileri yükleniyor...";
-    }
-
-    const mucFlights = await fetchSchedules("MUC");
-    const istFlights = await fetchSchedules("IST");
-    const sawFlights = await fetchSchedules("SAW");
-
-    const firstLegs = mucFlights.filter(f =>
-      ["IST", "SAW"].includes(f.arr_iata)
-    );
-
-    const secondLegs = [...istFlights, ...sawFlights].filter(f =>
-      f.arr_iata === "OGU"
-    );
-
-    const combined = [];
-
-    firstLegs.forEach(first => {
-      secondLegs.forEach(second => {
-        if (first.arr_iata !== second.dep_iata) return;
-
-        const firstArrival = toMinutes(first.arr_time);
-        const secondDeparture = toMinutes(second.dep_time);
-        const firstDeparture = toMinutes(first.dep_time);
-        const secondArrival = toMinutes(second.arr_time);
-
-        if (
-          firstArrival === null ||
-          secondDeparture === null ||
-          firstDeparture === null ||
-          secondArrival === null
-        ) return;
-
-        const wait = secondDeparture - firstArrival;
-        const total = secondArrival - firstDeparture;
-
-        if (wait < 45 || wait > 900) return;
-
-        const airline = getAirlineName(first.airline_iata || first.airline_icao);
-
-        combined.push({
-          dep: formatTime(first.dep_time),
-          hub: `${formatTime(first.arr_time)} / ${formatTime(second.dep_time)} ${first.arr_iata}`,
-          arr: formatTime(second.arr_time),
-          wait: minutesToDuration(wait),
-          duration: minutesToDuration(total),
-          price: "-",
-          airline: airline,
-          yama: calculateYama(wait, total)
-        });
-      });
-    });
-
-    if (combined.length > 0) {
-      liveFlights.today = combined;
-      liveFlights.tomorrow = combined;
-    } else {
-      console.warn("Canlı bağlantılı MUC → OGU uçuşu bulunamadı. Örnek veri gösteriliyor.");
-    }
-
-    showFlights("today");
-
-  } catch (error) {
-    console.error("Canlı veri hatası:", error);
-    showFlights("today");
-  }
-}
-
-window.onload = () => {
+window.onload = function() {
   showFlights("today");
-  loadLiveFlights();
 };
 </script>
+
+</body>
+</html>
