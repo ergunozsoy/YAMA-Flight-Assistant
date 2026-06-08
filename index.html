@@ -125,7 +125,8 @@ th{
 </div>
 
 <script>
-const airlineLinks = {
+const API_KEY = "a1a8c488-b22d-452f-81f7-dc5aa247a14f";
+  const airlineLinks = {
   "THY": "https://www.turkishairlines.com/tr-int/ucak-bileti/rezervasyon/availability-international/",
   "AJet": "https://ajet.com/tr",
   "Pegasus": "https://www.flypgs.com/"
@@ -324,7 +325,28 @@ function showFlights(day){
   `;
 }
 
-showFlights("today");
+async function testAirLabs() {
+
+    try {
+
+        const response = await fetch(
+            `https://airlabs.co/api/v9/schedules?dep_iata=MUC&api_key=${API_KEY}`
+        );
+
+        const data = await response.json();
+
+        console.log("AIRLABS TEST:");
+        console.log(data);
+
+    } catch (error) {
+
+        console.error("API HATASI:", error);
+
+    }
+}
+
+testAirLabs();
+  showFlights("today");
 </script>
 
 </body>
